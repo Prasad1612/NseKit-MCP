@@ -1,0 +1,5 @@
+npm update -g @google/gemini-cli
+
+gemini -v
+
+gemini
