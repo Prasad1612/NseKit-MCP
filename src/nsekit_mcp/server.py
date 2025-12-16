@@ -2061,7 +2061,7 @@ def symbol_specific_most_active_Calls_or_Puts_or_Contracts_by_OI(symbol: str, ty
     """
     TOOL: symbol_specific_most_active_Calls_or_Puts_or_Contracts_by_OI
     DESCRIPTION:
-        Fetches the Most Active CALLS, PUTS, or CONTRACTS based on Open Interest
+        Fetches the Top 5 Most Active CALLS, PUTS, or CONTRACTS based on Open Interest
         for a specific stock or index.
 
     PARAMETERS:
@@ -2072,7 +2072,7 @@ def symbol_specific_most_active_Calls_or_Puts_or_Contracts_by_OI(symbol: str, ty
             "CONTRACTS"  → Most Active Combined Contracts by OI
 
     RETURNS:
-        List / dict of the most active FnO contracts based on Open Interest.
+        List / dict of the Top 5 most active FnO contracts based on Open Interest.
 
     CATEGORY:
         symbol_fno_live_data
@@ -2126,6 +2126,160 @@ def investors_statewise():
     """
     rate_limit()
     return get.state_wise_registered_investors()
+
+
+
+# @mcp.prompt()
+# def pre_market_analysis() -> str:
+#     """
+#     PROMPT: pre_market_analysis
+#     PURPOSE:
+#         Guide the AI to generate a structured NSE pre-market report
+#         using NseKit-MCP tools.
+#     """
+#     return """
+# You are a professional Indian stock market analyst.
+
+# Generate a PRE-MARKET NSE report.
+
+# Steps:
+# 1. Check if market is open today.
+# 2. Fetch Gift Nifty trend.
+# 3. Analyze pre-open market breadth.
+# 4. Identify gap-up and gap-down Nifty50 & F&O stocks.
+# 5. Highlight NIFTY 50 & BANKNIFTY pre-open sentiment.
+
+# Output Format:
+# - Market Status
+# - Global / Gift Nifty Cues
+# - Market Breadth
+# - Key Movers
+# - Intraday Bias
+# - Risk Notes
+# """
+
+@mcp.prompt()
+def pre_market_analysis() -> str:
+    """Generate NSE pre-market analysis prompt"""
+    return (
+        "Generate an NSE PRE-MARKET ANALYSIS.\n\n"
+        "Steps:\n"
+        "1. Check whether today is a trading holiday.\n"
+        "2. Analyze Gift Nifty trend and global cues.\n"
+        "3. Review pre-open advance and decline data.\n"
+        "4. Identify major gap-up and gap-down stocks.\n"
+        "5. Summarize NIFTY 50 and BANKNIFTY directional bias.\n\n"
+        "Output Format:\n"
+        "- Market Status\n"
+        "- Gift Nifty / Global Cues\n"
+        "- Market Breadth\n"
+        "- Key Movers\n"
+        "- Intraday Bias\n"
+        "- Risk Notes\n\n"
+        "Rules:\n"
+        "- Use only NseKit-MCP tools\n"
+        "- Do not assume prices or direction\n"
+    )
+
+@mcp.prompt()
+def market_overview() -> str:
+    """Get comprehensive market overview"""
+    return (
+        "Provide a comprehensive NSE market overview:\n\n"
+        "1. Current market status and time\n"
+        "2. Nifty 50 and Bank Nifty levels\n"
+        "3. Market statistics (advances, declines, 52W highs/lows)\n"
+        "4. Top gainers and losers\n"
+        "5. Most active stocks by value\n"
+        "6. FII/DII activity\n"
+        "7. India VIX level\n\n"
+        "Present in a clean, organized format."
+    )
+
+@mcp.prompt()
+def analyze_option_chain() -> str:
+    """Analyze option chain for given symbol"""
+    return (
+        "Analyze the option chain for a given stock/index:\n\n"
+        "Steps:\n"
+        "1. Get the current expiry dates\n"
+        "2. Fetch the option chain for current expiry\n"
+        "3. Calculate Put-Call Ratio (PCR)\n"
+        "4. Identify max pain level\n"
+        "5. Find highest OI strikes for calls and puts\n"
+        "6. Analyze OI changes\n"
+        "7. Provide directional bias\n\n"
+        "Symbol will be provided by user (e.g., NIFTY, RELIANCE)"
+        "Present in a clean, organized format."
+    )
+
+@mcp.prompt()
+def stock_deep_dive() -> str:
+    """Perform deep analysis of a stock"""
+    return (
+        "Perform comprehensive stock analysis:\n\n"
+        "1. Live Quote (price, volume, circuit limits)\n"
+        "2. Historical performance (1W, 1M, 3M, 1Y)\n"
+        "3. Delivery percentage analysis\n"
+        "4. Bulk/Block deals (if any)\n"
+        "5. F&O data (if applicable)\n"
+        "6. Corporate actions/announcements\n"
+        "7. Insider trading activity\n"
+        "8. Valuation metrics (PE, PB, Div Yield)\n\n"
+        "Stock symbol will be provided by user."
+        "Present in a clean, organized format."
+    )
+
+@mcp.prompt()
+def fno_expiry_analysis() -> str:
+    """Analyze F&O positions before expiry"""
+    return (
+        "Generate F&O EXPIRY DAY analysis:\n\n"
+        "1. Check if today is an expiry day\n"
+        "2. Get most active options by OI and volume\n"
+        "3. Analyze max pain levels for Nifty and BankNifty\n"
+        "4. Review F&O ban stocks\n"
+        "5. Check participant-wise OI (FII/DII positioning)\n"
+        "6. Identify key support and resistance from OI\n"
+        "7. Provide expiry day strategy notes\n\n"
+        "Focus on: NIFTY, BANKNIFTY, and top F&O stocks"
+        "Present in a clean, organized format."
+    )
+
+@mcp.prompt()
+def market_sentiment() -> str:
+    """Gauge overall market sentiment"""
+    return (
+        "Analyze current market sentiment:\n\n"
+        "Data to collect:\n"
+        "1. Advance/Decline ratio\n"
+        "2. India VIX trend\n"
+        "3. FII/DII net positions\n"
+        "4. Put-Call Ratio for indices\n"
+        "5. Stocks hitting circuits\n"
+        "6. Volume analysis\n"
+        "7. Sector performance\n\n"
+        "Provide sentiment as: Bullish/Bearish/Neutral\n"
+        "Include confidence level and key factors."
+        "Present in a clean, organized format."
+    )
+
+@mcp.prompt()
+def daily_market_wrap() -> str:
+    """Generate end-of-day market summary"""
+    return (
+        "Generate DAILY MARKET WRAP for NSE:\n\n"
+        "1. Closing levels of major indices\n"
+        "2. Day's high/low ranges\n"
+        "3. Top performers and losers\n"
+        "4. Sectoral performance\n"
+        "5. Bulk and block deals\n"
+        "6. FII/DII net trading\n"
+        "7. Notable corporate actions\n"
+        "8. F&O highlights (OI changes, rollovers)\n\n"
+        "Use today's date for EOD data.\n"
+        "Format as a professional market report."
+    )
 
 # =====================================================================
 # START SERVER
