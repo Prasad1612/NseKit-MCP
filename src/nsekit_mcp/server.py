@@ -117,7 +117,7 @@ def market_is_trading_holiday(date: str = None):
     DESCRIPTION:
         Check if today or given date is trading holiday.
     PARAMETERS:
-        date: str – Optional "DD-MM-YYYY"
+        date: str – Optional "DD-MMM-YYYY"
     RETURNS:
         Boolean
     CATEGORY:
@@ -133,7 +133,7 @@ def market_is_clearing_holiday(date: str = None):
     DESCRIPTION:
         Check if today or given date is clearing holiday.
     PARAMETERS:
-        date: str – Optional "DD-MM-YYYY"
+        date: str – Optional "DD-MMM-YYYY"
     RETURNS:
         Boolean
     CATEGORY:
@@ -453,7 +453,7 @@ def fno_live_option_chain(symbol: str, expiry: str = None, compact: bool = False
     """
     TOOL: fno_live_option_chain
     DESCRIPTION:
-        Full live option chain with OI, volume, IV, PCR, Max Pain.
+        Full live option chain with OI, volume, IV, PCR.
     PARAMETERS:
         symbol: str – "RELIANCE", "NIFTY", "BANKNIFTY"
         expiry: str – Optional "DD-MMM-YYYY"
@@ -2354,6 +2354,24 @@ def quarterly_financial_results(symbol: str):
     return get.quarterly_financial_results(symbol)
 
 
+@mcp.tool()
+def quarterly_financial_results_full_data(url: str):
+    """
+    TOOL: quarterly_financial_results_full_data
+    DESCRIPTION:
+        Quarterly Results (Total Income, Profit Before Tax, Net Profit/ Loss, EARNINGS PER SHARE(Rs))  Note: all Amount in (Lakhs) so cores convert
+    PARAMETERS:
+        symbol: str – Example: "TCS"
+    RETURNS:
+        Quarterly Results.
+    CATEGORY:
+        quarterly_financial_result
+    """
+    rate_limit()
+    return get.html_tables(url)
+    # return df_to_json(get.html_tables(url))
+
+
 
 # @mcp.prompt()
 # def pre_market_analysis() -> str:
@@ -2838,13 +2856,19 @@ def intraday_scanner_fno_only() -> str:
         "- Capital preservation is priority\n"
     )
 
+
 # =====================================================================
 # START SERVER
 # =====================================================================
 
-# # Run with streamable HTTP transport
 # if __name__ == "__main__":
-#     mcp.run(transport="streamable-http")
+#     print("🔵 Starting NseKit-MCP server...")
+#     asyncio.run(mcp.run(transport="streamable-http"))
 
-def main() -> None:
-    mcp.run()
+# if __name__ == "__main__":
+#     print("🔵 Starting NseKit-MCP server...")
+#     mcp.run()
+
+if __name__ == "__main__":
+    print("🔵 Starting NseKit-MCP server...")
+    mcp.run(transport="stdio")  # No 'port' arg — uses default (http://127.0.0.1:8000 for HTTP)
