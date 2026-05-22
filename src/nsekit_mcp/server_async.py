@@ -1249,6 +1249,26 @@ async def quarterly_financial_results_full_data(
     return await run_sync(get.html_tables, url)
 
 
+@mcp.tool()
+async def equity_peer_comparison(
+    symbol: Annotated[str, "NSE equity symbol, e.g. 'TCS', 'RELIANCE'. Must be uppercase."],
+    quarter: Annotated[str, 'Quarter end-month. e.g. "Mar 2026", "Dec 2025", or "2025-09".'],
+    report_type: Annotated[
+        Literal["Consolidated", "Standalone"],
+        '"Consolidated" (default) or "Standalone".'
+    ] = "Consolidated",
+):
+    """
+    Fetch peer-comparison data for a stock from the NSE.
+    Returns one row per peer company with columns: Symbol, LTP (₹), % Chng,
+    Volume (Lakhs), Value (₹ Cr.), Mkt Cap (₹ Cr.), P/E, Total Income (₹ Cr.),
+    Net Profit (₹ Cr.), EPS (₹), Debt/Equity, Promoter %.
+    Common quarter-end months: Mar, Jun, Sep, Dec.
+    """
+    await rate_limit()
+    return df_to_json(await run_sync(get.peer_comparison, symbol, quarter, report_type))
+
+
 # =====================================================================
 # MCP PROMPTS  (pure string generators — no I/O, no async needed)
 # =====================================================================
