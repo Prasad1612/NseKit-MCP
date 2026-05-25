@@ -152,6 +152,7 @@ def avg_order_ack_latency():
     rate_limit()
     return df_to_json(get.latency_nanosec())
 
+
 # =====================================================================
 # PRE-OPEN & INDEX LIVE
 # =====================================================================
@@ -1192,15 +1193,43 @@ def fno_ban_list(
     return df_to_json(get.fno_eod_sec_ban(date))
 
 
+# @mcp.tool()
+# def fno_mwpl_data(
+#     date: Annotated[str, "DD-MM-YYYY. Uses last trading date if None given."]
+# ):
+#     """
+#     Market Wide Position Limits (MWPL) and usage %.
+#     """
+#     rate_limit()
+#     return df_to_json(get.fno_eod_mwpl_3(date))
+
+
 @mcp.tool()
 def fno_mwpl_data(
     date: Annotated[str, "DD-MM-YYYY. Uses last trading date if None given."]
 ):
-    """
-    Market Wide Position Limits (MWPL) and usage %.
-    """
+    """Market Wide Position Limits (MWPL) and usage %."""
     rate_limit()
-    return df_to_json(get.fno_eod_mwpl_3(date))
+    df = (get.fno_eod_mwpl_3, date)
+
+    df = df.dropna(axis=1, how="all")
+
+    records = []
+    for row in df.to_dict(orient="records"):
+        meta = {
+            k: v for k, v in row.items()
+            if not k.startswith("Client") and k != "Sr No."  # ← exclude Sr No.
+        }
+        clients = {
+            k: v for k, v in row.items()
+            if k.startswith("Client") and pd.notna(v)
+        }
+        sorted_vals = sorted(clients.values(), reverse=True)
+        sorted_clients = {f"Client {i+1}": v for i, v in enumerate(sorted_vals)}
+
+        records.append({**meta, **sorted_clients})
+
+    return json.dumps(records, ensure_ascii=False)
 
 
 @mcp.tool()
@@ -1309,6 +1338,24 @@ def fno_settlement_report(
     rate_limit()
     kwargs = compact_kwargs(period=period, from_year=from_year, to_year=to_year)
     return df_to_json(get.fno_monthly_settlement_report(**kwargs))
+
+
+@mcp.tool()
+def fno_top_10_clearing_members(
+    date: Annotated[str, "DD-MM-YYYY. Uses last trading date if None given."] = None
+):
+    """Volume and Turnover data of top 10 Clearing Members (no. of contracts) in Equity Derivatives."""
+    rate_limit()
+    return df_to_json(get.fno_eod_top_10_clearing_members(date))
+
+@mcp.tool()
+def fno_client_category_wise_turnover(
+    date: Annotated[str, "Date in DD-MM-YYYY format. Uses last trading date if None is given."],
+    raw_data: Annotated[bool, "Return raw NSE response if True."] = False,
+):
+    """Client Category Wise Turnover(Mutual Funds, AIF, PMS, FPI, Retail, Insurance Companies, Others)."""
+    rate_limit()
+    return df_to_json(get.fno_eod_client_wise_turnover (date, raw_data=raw_data))
 
 
 # =====================================================================
@@ -1451,6 +1498,7 @@ def quarterly_financial_results_full_data(
     return get.html_tables(url)
 
 
+
 @mcp.tool()
 def equity_peer_comparison(
     symbol: Annotated[str, "NSE equity symbol, e.g. 'TCS', 'RELIANCE'. Must be uppercase."],
@@ -1469,6 +1517,8 @@ def equity_peer_comparison(
     """
     rate_limit()
     return df_to_json(get.peer_comparison, symbol, quarter, report_type)
+
+
 
 
 #-------------------------   Prompt   ----------------------------------

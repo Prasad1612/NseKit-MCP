@@ -160,6 +160,7 @@ async def avg_order_ack_latency():
     await rate_limit()
     return df_to_json(await run_sync(get.latency_nanosec))
 
+
 # =====================================================================
 # PRE-OPEN & INDEX LIVE
 # =====================================================================
@@ -1031,13 +1032,59 @@ async def fno_ban_list(
     return df_to_json(await run_sync(get.fno_eod_sec_ban, date))
 
 
+# @mcp.tool()
+# async def fno_mwpl_data(
+#     date: Annotated[str, "DD-MM-YYYY. Uses last trading date if None given."]
+# ):
+#     """Market Wide Position Limits (MWPL) and usage %."""
+#     await rate_limit()
+#     return df_to_json(await run_sync(get.fno_eod_mwpl_3, date))
+
+
+# @mcp.tool()
+# async def fno_mwpl_data(
+#     date: Annotated[str, "DD-MM-YYYY. Uses last trading date if None given."]
+# ):
+#     """Market Wide Position Limits (MWPL) and usage %."""
+#     await rate_limit()
+#     df = await run_sync(get.fno_eod_mwpl_3, date)
+    
+#     # Drop columns that are entirely NaN (unused Client slots)
+#     df = df.dropna(axis=1, how="all")
+    
+#     # Drop NaN values per row — only keep actual client values
+#     records = [
+#         {k: v for k, v in row.items() if pd.notna(v)}
+#         for row in df.to_dict(orient="records")
+#     ]
+#     return json.dumps(records, ensure_ascii=False)
+
 @mcp.tool()
 async def fno_mwpl_data(
     date: Annotated[str, "DD-MM-YYYY. Uses last trading date if None given."]
 ):
     """Market Wide Position Limits (MWPL) and usage %."""
     await rate_limit()
-    return df_to_json(await run_sync(get.fno_eod_mwpl_3, date))
+    df = await run_sync(get.fno_eod_mwpl_3, date)
+
+    df = df.dropna(axis=1, how="all")
+
+    records = []
+    for row in df.to_dict(orient="records"):
+        meta = {
+            k: v for k, v in row.items()
+            if not k.startswith("Client") and k != "Sr No."  # ← exclude Sr No.
+        }
+        clients = {
+            k: v for k, v in row.items()
+            if k.startswith("Client") and pd.notna(v)
+        }
+        sorted_vals = sorted(clients.values(), reverse=True)
+        sorted_clients = {f"Client {i+1}": v for i, v in enumerate(sorted_vals)}
+
+        records.append({**meta, **sorted_clients})
+
+    return json.dumps(records, ensure_ascii=False)
 
 
 @mcp.tool()
@@ -1130,6 +1177,24 @@ async def fno_settlement_report(
     await rate_limit()
     kwargs = compact_kwargs(period=period, from_year=from_year, to_year=to_year)
     return df_to_json(await run_sync(get.fno_monthly_settlement_report, **kwargs))
+
+
+@mcp.tool()
+async def fno_top_10_clearing_members(
+    date: Annotated[str, "DD-MM-YYYY. Uses last trading date if None given."] = None
+):
+    """Volume and Turnover data of top 10 Clearing Members (no. of contracts) in Equity Derivatives."""
+    await rate_limit()
+    return df_to_json(await run_sync(get.fno_eod_top_10_clearing_members, date))
+
+@mcp.tool()
+async def fno_client_category_wise_turnover(
+    date: Annotated[str, "Date in DD-MM-YYYY format. Uses last trading date if None is given."],
+    raw_data: Annotated[bool, "Return raw NSE response if True."] = False,
+):
+    """Client Category Wise Turnover(Mutual Funds, AIF, PMS, FPI, Retail, Insurance Companies, Others)."""
+    await rate_limit()
+    return df_to_json(await run_sync(get.fno_eod_client_wise_turnover, date, raw_data=raw_data))
 
 
 # =====================================================================
