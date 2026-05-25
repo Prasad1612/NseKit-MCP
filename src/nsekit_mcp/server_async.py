@@ -544,7 +544,7 @@ async def equity_live_stock_info(
 ):
     """Full live quote: Meta Data, Trade Information, Price Information, Securities Information, Order Book, etc."""
     await rate_limit()
-    return await run_sync(get.cm_live_equity_full_info, symbol)
+    return await run_sync(get.cm_live_equity_info, symbol)
 
 
 @mcp.tool()

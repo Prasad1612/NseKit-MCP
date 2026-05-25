@@ -609,7 +609,7 @@ def equity_live_stock_info(
     Securities Information, Order Book, etc.
     """
     rate_limit()
-    return get.cm_live_equity_full_info(symbol)
+    return get.cm_live_equity_info(symbol)
 
 
 @mcp.tool()

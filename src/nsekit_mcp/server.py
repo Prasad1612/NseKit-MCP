@@ -957,7 +957,7 @@ def equity_live_stock_info(symbol: str):
     """
     rate_limit()
     # Original: get.cm_live_equity_info("RELIANCE")
-    return (get.cm_live_equity_full_info(symbol))
+    return (get.cm_live_equity_info(symbol))
 
 
 @mcp.tool()
