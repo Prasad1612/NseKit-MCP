@@ -154,6 +154,11 @@ async def market_live_statistics():
     await rate_limit()
     return df_to_json(await run_sync(get.cm_live_market_statistics))
 
+@mcp.tool()
+async def avg_order_ack_latency():
+    """NSE's current average order acknowledgement latency in nanoseconds."""
+    await rate_limit()
+    return df_to_json(await run_sync(get.latency_nanosec))
 
 # =====================================================================
 # PRE-OPEN & INDEX LIVE
