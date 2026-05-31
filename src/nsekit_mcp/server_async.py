@@ -160,6 +160,233 @@ async def avg_order_ack_latency():
     await rate_limit()
     return df_to_json(await run_sync(get.latency_nanosec))
 
+@mcp.tool()
+async def all_nse_traded_stocks(
+    series: Optional[
+        Literal[
+            "EQ", "BE", "BZ",
+            "SM", "ST", "SZ",
+            "IV", "ID",
+            "GB", "GS",
+            "RR", "RT",
+            "BO"
+        ]
+    ] = None,
+    mkt_cap_gte: Annotated[Optional[int], "Minimum market cap in ₹ Cr e.g., 1000"] = None,
+    mkt_cap_lte: Annotated[Optional[int], "Maximum market cap in ₹ Cr e.g., 500"] = None,
+):
+    """
+    Fetch live traded securities from NSE Cash Market.
+
+    Parameters
+    ----------
+    series : str, optional
+        Filter by NSE series code.
+
+        Supported values:
+        - EQ : Fully paid equity shares / ETFs
+        - BE : Trade-for-trade equity shares
+        - BZ : Trade-for-trade equity shares
+        - SM : SME equity shares
+        - ST : SME trade-for-trade shares
+        - SZ : SME trade-for-trade shares
+        - IV : InvIT units
+        - ID : InvIT trade-for-trade units
+        - GB : Sovereign Gold Bonds
+        - GS : Government Securities
+        - RR : REIT units
+        - RT : REIT trade-for-trade units
+        - BO : Buyback of equity shares
+
+    mkt_cap_gte : int, optional
+        Return only securities with Market Cap greater than or equal to
+        the specified value (₹ Crores).
+
+    mkt_cap_lte : int, optional
+        Return only securities with Market Cap less than or equal to
+        the specified value (₹ Crores).
+
+    Returns
+    -------
+    JSON
+        List of traded NSE securities with:
+        - Symbol
+        - Series
+        - Last Price (₹)
+        - Change (₹)
+        - % Change
+        - Volume (Lakhs)
+        - Value (₹ Cr.)
+        - Mkt Cap (₹ Cr.)
+
+    Examples
+    --------
+    Get all traded securities:
+        all_nse_traded_stocks()
+
+    EQ stocks only:
+        all_nse_traded_stocks(series="EQ")
+
+    Market cap >= ₹1,000 Cr:
+        all_nse_traded_stocks(mkt_cap_gte=1000)
+
+    Market cap <= ₹500 Cr:
+        all_nse_traded_stocks(mkt_cap_lte=500)
+
+    EQ stocks with market cap between ₹500 Cr and ₹5,000 Cr:
+        all_nse_traded_stocks(
+            series="EQ",
+            mkt_cap_gte=500,
+            mkt_cap_lte=5000
+        )
+    """
+
+    await rate_limit()
+    kwargs = compact_kwargs(series=series, mkt_cap_gte=mkt_cap_gte, mkt_cap_lte=mkt_cap_lte)
+    return df_to_json(await run_sync(get.cm_live_stocks_traded, **kwargs))
+
+
+from typing import Optional, Literal, Annotated
+
+@mcp.tool()
+async def all_nse_price_band_hitters(
+    band: Optional[
+        Literal[
+            "all",
+            "upper",
+            "lower",
+            "both",
+        ]
+    ] = "all",
+    sec_type: Optional[
+        Literal[
+            "AllSec",
+            "SecGtr20",
+            "SecLwr20",
+        ]
+    ] = "AllSec",
+    series: Optional[
+        Literal[
+            "EQ", "BE", "BZ",
+            "SM", "ST", "SZ",
+            "IV", "ID",
+            "GB", "GS",
+            "RR", "RT",
+            "BO",
+        ]
+    ] = None,
+    turnover_gte: Annotated[
+        Optional[float],
+        "Minimum turnover in ₹ Crores"
+    ] = None,
+    turnover_lte: Annotated[
+        Optional[float],
+        "Maximum turnover in ₹ Crores"
+    ] = None,
+):
+    """
+    Fetch live NSE Price Band Hitters data.
+
+    Parameters
+    ----------
+    band : str, optional
+        Price band category.
+
+        Supported values:
+        - all   : Upper + Lower + Both (default)
+        - upper : Upper circuit stocks
+        - lower : Lower circuit stocks
+        - both  : Stocks that hit both circuits
+
+    sec_type : str, optional
+        Security category.
+
+        Supported values:
+        - AllSec   : All securities
+        - SecGtr20 : Securities with price > ₹20
+        - SecLwr20 : Securities with price ≤ ₹20
+
+    series : str, optional
+        Filter by NSE series.
+
+        Supported values:
+        - EQ : Fully paid equity shares / ETFs
+        - BE : Trade-for-trade equity shares
+        - BZ : Trade-for-trade equity shares
+        - SM : SME equity shares
+        - ST : SME trade-for-trade shares
+        - SZ : SME trade-for-trade shares
+        - IV : InvIT units
+        - ID : InvIT trade-for-trade units
+        - GB : Sovereign Gold Bonds
+        - GS : Government Securities
+        - RR : REIT units
+        - RT : REIT trade-for-trade units
+        - BO : Buyback of equity shares
+
+    turnover_gte : float, optional
+        Return only securities with turnover greater than
+        or equal to the specified value (₹ Crores).
+
+    turnover_lte : float, optional
+        Return only securities with turnover less than
+        or equal to the specified value (₹ Crores).
+
+    Returns
+    -------
+    JSON
+        Price band hitter securities with:
+
+        - Symbol
+        - Series
+        - LTP (₹)
+        - Change (₹)
+        - % Change
+        - Price Band (%)
+        - High Price
+        - Low Price
+        - 52W High
+        - 52W Low
+        - Volume (Lakhs)
+        - Turnover (₹ Cr.)
+        - Band
+
+    Examples
+    --------
+    All price band hitters:
+        all_nse_price_band_hitters()
+
+    Upper circuit stocks:
+        all_nse_price_band_hitters(band="upper")
+
+    Lower circuit EQ stocks:
+        all_nse_price_band_hitters(
+            band="lower",
+            series="EQ"
+        )
+
+    Upper circuit stocks with price > ₹20:
+        all_nse_price_band_hitters(
+            band="upper",
+            sec_type="SecGtr20"
+        )
+
+    Upper circuit stocks with turnover ≥ ₹5 Cr:
+        all_nse_price_band_hitters(
+            band="upper",
+            turnover_gte=5
+        )
+
+    Turnover between ₹1 Cr and ₹10 Cr:
+        all_nse_price_band_hitters(
+            turnover_gte=1,
+            turnover_lte=10
+        )
+    """
+
+    await rate_limit()
+    kwargs = compact_kwargs(band=band, sec_type=sec_type, series=series, turnover_gte=turnover_gte, turnover_lte=turnover_lte)
+    return df_to_json(await run_sync(get.cm_live_price_band_hitters, **kwargs))
 
 # =====================================================================
 # PRE-OPEN & INDEX LIVE
