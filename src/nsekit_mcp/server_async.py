@@ -509,17 +509,44 @@ async def list_of_All_NSE_stocks(
 # OPTION CHAIN & F&O LIVE
 # =====================================================================
 
+# @mcp.tool()
+# async def fno_live_option_chain(
+#     symbol: Annotated[str, "'RELIANCE', 'NIFTY', 'BANKNIFTY'. Must be uppercase."],
+#     expiry: Annotated[str, 'Optional "DD-MMM-YYYY"'] = None,
+#     compact: Annotated[bool, "Compact OI view"] = False,
+# ):
+#     """Full live option chain with OI, volume, IV, PCR."""
+#     await rate_limit()
+#     mode = "compact" if compact else None
+#     return df_to_json(await run_sync(get.fno_live_option_chain, symbol, expiry_date=expiry, oi_mode=mode))
+
+
 @mcp.tool()
 async def fno_live_option_chain(
     symbol: Annotated[str, "'RELIANCE', 'NIFTY', 'BANKNIFTY'. Must be uppercase."],
-    expiry: Annotated[str, 'Optional "DD-MMM-YYYY"'] = None,
-    compact: Annotated[bool, "Compact OI view"] = False,
+    expiry: Annotated[str | None, 'Expiry date "DD-MMM-YYYY", or None for nearest expiry'] = None,
+    strike: Annotated[str | None, "Fetch this strike across all expiries e.g. '23500'. Mutually exclusive with expiry."] = None,
+    compact: Annotated[bool, "Omit bid/ask columns"] = False,
 ):
-    """Full live option chain with OI, volume, IV, PCR."""
+    """
+    Full live option chain with OI, volume, IV.
+    
+    Provide either expiry (single-expiry full chain) or strike (one strike across all expiries), not both.
+    use "fno_expiry_dates_and_strikePrice" tool for find Expiry Dates and Strike Price
+    Omitting both returns the nearest expiry chain.
+    """
+    if expiry and strike:
+        raise ValueError("Provide either 'expiry' or 'strike', not both.")
     await rate_limit()
-    mode = "compact" if compact else None
-    return df_to_json(await run_sync(get.fno_live_option_chain, symbol, expiry_date=expiry, oi_mode=mode))
-
+    return df_to_json(
+        await run_sync(
+            get.fno_live_option_chain,
+            symbol,
+            expiry_date=expiry,
+            oi_mode="compact" if compact else "full",
+            strike_price=strike,
+        )
+    )
 
 @mcp.tool()
 async def fno_expiry_dates(
