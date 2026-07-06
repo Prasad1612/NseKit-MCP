@@ -1513,11 +1513,22 @@ async def fno_intraday_chart(
     args = compact_args(symbol, inst_type, expiry, strike)
     return df_to_json(await run_sync(get.fno_chart, *args))
 
+# @mcp.tool()
+# async def price_chart_india_vix():
+#     """Retrieves intraday chart data for the India VIX Index."""
+#     await rate_limit()
+#     return df_to_json(await run_sync(get.india_vix_chart))
+
 @mcp.tool()
-async def price_chart_india_vix():
-    """Retrieves intraday chart data for the India VIX Index."""
+async def price_chart_india_vix(
+    interval: Annotated[Literal["sec", "min"], "Data granularity: 'sec' for per-second data, 'min' for per-minute data."] = "min"
+):
+    """Retrieves intraday chart data for the India VIX Index.
+    Use interval='sec' for raw per-second ticks, or interval='min' to
+    get one aggregated row per minute (last price/flag in that minute).
+    """
     await rate_limit()
-    return df_to_json(await run_sync(get.india_vix_chart))
+    return df_to_json(await run_sync(get.india_vix_chart, interval))
 
 
 @mcp.tool()
