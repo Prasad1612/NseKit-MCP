@@ -4,7 +4,7 @@ from threading import Lock
 from typing import Optional, Literal, Annotated
 
 import pandas as pd
-from mcp.server.fastmcp import FastMCP
+from mcp.server import MCPServer
 from NseKit import NseKit, Moneycontrol
 
 # ================================================================
@@ -29,7 +29,7 @@ def rate_limit():
 #                   MCP + NseKit Initialization
 # ================================================================
 
-mcp = FastMCP("NseKit-MCP", json_response=True)
+mcp = MCPServer("NseKit-MCP", json_response=True)
 
 get = NseKit.Nse()
 mc = Moneycontrol.MC()

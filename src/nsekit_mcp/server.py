@@ -1,4 +1,4 @@
-from mcp.server.fastmcp import FastMCP
+from mcp.server import MCPServer
 from NseKit import NseKit, Moneycontrol
 import pandas as pd
 import time
@@ -27,7 +27,7 @@ def rate_limit():
 #                   MCP + NseKit Initialization
 # ================================================================
 
-mcp = FastMCP("NseKit-MCP", json_response=True)
+mcp = MCPServer("NseKit-MCP", json_response=True)
 
 get = NseKit.Nse()
 mc = Moneycontrol.MC()

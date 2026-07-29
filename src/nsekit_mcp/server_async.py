@@ -9,7 +9,7 @@ import time
 from typing import Optional, Literal, Annotated
 
 import pandas as pd
-from mcp.server.fastmcp import FastMCP
+from mcp.server import MCPServer
 from NseKit import NseKit, Moneycontrol
 
 # ================================================================
@@ -34,7 +34,7 @@ async def rate_limit():
 #                   MCP + NseKit Initialization
 # ================================================================
 
-mcp = FastMCP("NseKit-MCP", json_response=True)
+mcp = MCPServer("NseKit-MCP")
 
 get = NseKit.Nse()
 mc  = Moneycontrol.MC()
@@ -1917,7 +1917,7 @@ def intraday_scanner_fno_only() -> str:
 
 if __name__ == "__main__":
     print("🔵 Starting NseKit-MCP Async server...")
-    asyncio.run(mcp.run_async(transport="stdio"))
+    mcp.run(transport="stdio")
 
 
 
