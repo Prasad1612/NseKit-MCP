@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "NseKit-MCP": {
+      "args": [
+        "run",
+        "D:\\Prasad\\Trading\\01. Py\\MCP\\nsekit-mcp\\main_async.py"
+      ],
+      "command": "mcp"
+    },
+    "kite": {
+      "args": [
+        "mcp-remote",
+        "https://mcp.kite.trade/mcp"
+      ],
+      "command": "npx",
+      "disabled": true
+    }
+  }
+}
