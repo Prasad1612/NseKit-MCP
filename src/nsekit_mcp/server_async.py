@@ -427,6 +427,23 @@ async def preopen_futures_data(
 
 
 @mcp.tool()
+async def closing_auction_session(
+    symbol: Optional[str] = None
+):
+    """
+    Closing Auction Session (CAS) — final-minutes call-auction snapshot.
+
+    Returns per-symbol IEP/order-book-derived fields (or final matched
+    price/qty once the auction settles). Pass `symbol = None`(default) show all symbol data. 
+    Pass `symbol` to filter to a single stock. Pass `symbol="status"` to get a combined session
+    state string (e.g. "Open — Closing Auction Session Market Open")
+    instead of the data table.
+    """
+    await rate_limit()
+    return df_to_json(await run_sync(get.nse_closing_auction_session, symbol))
+
+
+@mcp.tool()
 async def list_of_indices():
     """All 150+ NSE indices. ("Indices Eligible In Derivatives", "Broad Market Indices",
     "Sectoral Market Indices", "Thematic Market Indices", "Strategy Market Indices", "Others")"""
@@ -508,18 +525,6 @@ async def list_of_All_NSE_stocks(
 # =====================================================================
 # OPTION CHAIN & F&O LIVE
 # =====================================================================
-
-# @mcp.tool()
-# async def fno_live_option_chain(
-#     symbol: Annotated[str, "'RELIANCE', 'NIFTY', 'BANKNIFTY'. Must be uppercase."],
-#     expiry: Annotated[str, 'Optional "DD-MMM-YYYY"'] = None,
-#     compact: Annotated[bool, "Compact OI view"] = False,
-# ):
-#     """Full live option chain with OI, volume, IV, PCR."""
-#     await rate_limit()
-#     mode = "compact" if compact else None
-#     return df_to_json(await run_sync(get.fno_live_option_chain, symbol, expiry_date=expiry, oi_mode=mode))
-
 
 @mcp.tool()
 async def fno_live_option_chain(
@@ -1285,33 +1290,6 @@ async def fno_ban_list(
     await rate_limit()
     return df_to_json(await run_sync(get.fno_eod_sec_ban, date))
 
-
-# @mcp.tool()
-# async def fno_mwpl_data(
-#     date: Annotated[str, "DD-MM-YYYY. Uses last trading date if None given."]
-# ):
-#     """Market Wide Position Limits (MWPL) and usage %."""
-#     await rate_limit()
-#     return df_to_json(await run_sync(get.fno_eod_mwpl_3, date))
-
-
-# @mcp.tool()
-# async def fno_mwpl_data(
-#     date: Annotated[str, "DD-MM-YYYY. Uses last trading date if None given."]
-# ):
-#     """Market Wide Position Limits (MWPL) and usage %."""
-#     await rate_limit()
-#     df = await run_sync(get.fno_eod_mwpl_3, date)
-    
-#     # Drop columns that are entirely NaN (unused Client slots)
-#     df = df.dropna(axis=1, how="all")
-    
-#     # Drop NaN values per row — only keep actual client values
-#     records = [
-#         {k: v for k, v in row.items() if pd.notna(v)}
-#         for row in df.to_dict(orient="records")
-#     ]
-#     return json.dumps(records, ensure_ascii=False)
 
 @mcp.tool()
 async def fno_mwpl_data(
