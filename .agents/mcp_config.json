@@ -3,7 +3,7 @@
     "NseKit-MCP": {
       "args": [
         "run",
-        "D:\\Prasad\\Trading\\01. Py\\MCP\\nsekit-mcp\\main_async.py"
+        "D:\\sad\\MCP\\nsekit-mcp\\main_async.py"
       ],
       "command": "mcp"
     },

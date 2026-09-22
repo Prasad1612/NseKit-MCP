@@ -587,12 +587,18 @@ async def most_active_options(
 # EQUITY LIVE DATA
 # =====================================================================
 
+# @mcp.tool()
+# async def most_active_equities(by: Literal["value", "volume"] = "value"):
+#     """Top stocks by traded value or volume."""
+#     await rate_limit()
+#     func = get.cm_live_most_active_equity_by_value if by == "value" else get.cm_live_most_active_equity_by_vol
+#     return df_to_json(await run_sync(func))
+
 @mcp.tool()
-async def most_active_equities(by: Literal["value", "volume"] = "value"):
+async def most_active_equities(index: Literal["value", "volume"] = "value"):
     """Top stocks by traded value or volume."""
     await rate_limit()
-    func = get.cm_live_most_active_equity_by_value if by == "value" else get.cm_live_most_active_equity_by_vol
-    return df_to_json(await run_sync(func))
+    return df_to_json(await run_sync(get.cm_live_most_active_equity, index))
 
 
 @mcp.tool()
@@ -1894,7 +1900,7 @@ def intraday_scanner_fno_only() -> str:
 # =====================================================================
 
 if __name__ == "__main__":
-    print("🔵 Starting NseKit-MCP Async server...")
+    # print("🔵 Starting NseKit-MCP Async server...")
     mcp.run(transport="stdio")
 
 
