@@ -1514,6 +1514,17 @@ async def price_chart_india_vix(
     await rate_limit()
     return df_to_json(await run_sync(get.india_vix_chart, interval))
 
+@mcp.tool()
+async def price_chart_gift_nifty(
+    interval: Annotated[Literal["sec", "min"], "Data granularity: 'sec' for per-second data, 'min' for per-minute data."] = "min"
+):
+    """Retrieves intraday chart data for the GIFT NIFTY Index.
+    Use interval='sec' for raw per-second ticks, or interval='min' to
+    get one aggregated row per minute (last price/session in that minute).
+    """
+    await rate_limit()
+    return df_to_json(await run_sync(get.gift_nifty_chart, interval))
+
 
 @mcp.tool()
 async def symbol_full_fno_live_data(
