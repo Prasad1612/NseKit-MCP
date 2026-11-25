@@ -1,13 +1,13 @@
 [project]
 name = "nsekit-mcp"
-version = "0.0.33"
+version = "0.0.34"
 description = "FastMCP server for NSE India market data using NseKit"
 readme = "README.md"
 requires-python = ">=3.12"
 
 dependencies = [
     "mcp[cli]>=2.0.0",
-    "nsekit>=0.0.47",
+    "nsekit>=0.0.51",
     "typer>=0.20.0",
 ]
 

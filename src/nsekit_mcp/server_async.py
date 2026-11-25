@@ -554,6 +554,35 @@ async def fno_live_option_chain(
     )
 
 @mcp.tool()
+async def fno_live_option_greek(
+    symbol: Annotated[str, "'RELIANCE', 'NIFTY', 'BANKNIFTY'. Must be uppercase."],
+    expiry: Annotated[str | None, 'Expiry date "DD-MMM-YYYY", or None for nearest expiry'] = None,
+    strike: Annotated[str | None, "Fetch this strike across all expiries e.g. '7000'. Mutually exclusive with expiry."] = None,
+    full: Annotated[bool, "Add higher-order Greeks (Vanna, Charm, Speed, Color, Volga, Veta, Zomma, TGR, DTR, TV)"] = False,
+):
+    """
+    Live option Greeks table with IV, Vega, Theta, Gamma, Delta and trade price for calls and puts.
+
+    Provide either expiry (single-expiry table) or strike (one strike across all expiries), not both.
+    use "fno_expiry_dates_and_strikePrice" tool for find Expiry Dates and Strike Price
+    Omitting both returns the nearest expiry table.
+    Missing values (illiquid strikes) are returned as "-".
+    """
+    if expiry and strike:
+        raise ValueError("Provide either 'expiry' or 'strike', not both.")
+    await rate_limit()
+    return df_to_json(
+        await run_sync(
+            get.fno_live_option_greek,
+            symbol,
+            expiry_date=expiry,
+            greek_mode="full" if full else "compact",
+            strike_price=strike,
+            text_format=False,
+        )
+    )
+
+@mcp.tool()
 async def fno_expiry_dates(
     symbol: Annotated[str, "Stock or index. e.g., NIFTY, RELIANCE. Must be uppercase."] = "NIFTY",
     filter_type: Literal["Current", "Next Week", "Month", "All"] = None,
@@ -1513,6 +1542,7 @@ async def price_chart_india_vix(
     """
     await rate_limit()
     return df_to_json(await run_sync(get.india_vix_chart, interval))
+
 
 @mcp.tool()
 async def price_chart_gift_nifty(
